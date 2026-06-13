@@ -15,8 +15,13 @@ public class ConsoleUtil {
      *
      * Urutan prioritas:
      * 1. ANSI escape code  — bekerja di PowerShell, Windows Terminal, Git Bash, Linux, Mac
+     *                        Juga bekerja ketika dijalankan via Maven exec:java
      * 2. ProcessBuilder cls — fallback untuk Windows CMD lama
      * 3. Cetak 50 baris kosong — worst-case fallback
+     *
+     * Catatan: System.console() TIDAK digunakan sebagai syarat karena akan selalu
+     * null ketika program dijalankan via Maven (stdout di-redirect), padahal ANSI
+     * tetap bisa bekerja di terminal yang menjalankan Maven.
      */
     public static void clearScreen() {
         if (supportsAnsi()) {
@@ -42,22 +47,19 @@ public class ConsoleUtil {
     }
 
     /**
-     * Mendeteksi apakah terminal aktif mendukung ANSI escape code.
+     * Mendeteksi apakah terminal mendukung ANSI escape code.
      *
-     * Pengecekan:
-     * - System.console() != null  → program dijalankan di terminal interaktif (bukan pipe/redirect)
-     * - WT_SESSION                → Windows Terminal
-     * - ANSICON                   → ANSICON wrapper untuk CMD lama
-     * - TERM / COLORTERM          → terminal Unix/Linux/Mac standar
+     * Tidak menggunakan System.console() karena akan null saat dijalankan
+     * via Maven exec:java meski terminal sesungguhnya mendukung ANSI.
+     * Sebagai gantinya, cek environment variable yang di-set oleh terminal.
      */
     private static boolean supportsAnsi() {
-        if (System.console() == null) {
-            return false;
-        }
         return System.getenv("WT_SESSION") != null      // Windows Terminal
             || System.getenv("ANSICON") != null          // ANSICON
             || System.getenv("TERM") != null             // Unix/Linux/Mac
-            || System.getenv("COLORTERM") != null;       // terminal dengan warna
+            || System.getenv("COLORTERM") != null        // terminal dengan warna
+            || System.getenv("ConEmuANSI") != null       // ConEmu / cmder
+            || "true".equalsIgnoreCase(System.getenv("CLICOLOR_FORCE")); // force flag
     }
 
     public static void printSeparator() {

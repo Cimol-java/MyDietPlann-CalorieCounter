@@ -82,6 +82,85 @@ public class InputValidator {
         }
     }
 
+    /**
+     * Membaca input string opsional. Jika user menekan Enter tanpa mengetik apapun,
+     * dikembalikan nilai defaultValue (untuk fitur edit yang bisa di-skip).
+     */
+    public static String readOptional(String prompt, String defaultValue) {
+        try {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            return input.isEmpty() ? defaultValue : input;
+        } catch (Exception e) {
+            System.out.println("[ERROR] Gagal membaca input: " + e.getMessage());
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Membaca input double opsional. Jika user menekan Enter tanpa mengetik apapun,
+     * dikembalikan nilai defaultValue (untuk fitur edit yang bisa di-skip).
+     */
+    public static double readDoubleOptional(String prompt, double defaultValue) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                String input = scanner.nextLine().trim();
+                if (input.isEmpty()) return defaultValue;
+                double value = Double.parseDouble(input);
+                if (value <= 0) {
+                    System.out.println("[ERROR] Nilai harus lebih besar dari 0.");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("[ERROR] Input tidak valid. Masukkan angka desimal (contoh: 65.5).");
+            } catch (Exception e) {
+                System.out.println("[ERROR] Terjadi kesalahan: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Membaca input int opsional. Jika user menekan Enter tanpa mengetik apapun,
+     * dikembalikan nilai defaultValue (untuk fitur edit yang bisa di-skip).
+     */
+    public static int readIntOptional(String prompt, int defaultValue) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                String input = scanner.nextLine().trim();
+                if (input.isEmpty()) return defaultValue;
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("[ERROR] Input tidak valid. Masukkan angka bulat (contoh: 25).");
+            } catch (Exception e) {
+                System.out.println("[ERROR] Terjadi kesalahan: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Membaca pilihan menu opsional. Jika user menekan Enter tanpa mengetik apapun,
+     * dikembalikan nilai defaultValue (untuk fitur edit yang bisa di-skip).
+     */
+    public static int readMenuOptional(String prompt, int min, int max, int defaultValue) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                String input = scanner.nextLine().trim();
+                if (input.isEmpty()) return defaultValue;
+                int choice = Integer.parseInt(input);
+                if (choice >= min && choice <= max) return choice;
+                System.out.println("[ERROR] Pilihan tidak valid. Masukkan angka antara " + min + " dan " + max + ".");
+            } catch (NumberFormatException e) {
+                System.out.println("[ERROR] Masukkan angka, bukan teks.");
+            } catch (Exception e) {
+                System.out.println("[ERROR] Terjadi kesalahan: " + e.getMessage());
+            }
+        }
+    }
+
     public static LocalDate readDate(String prompt) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         while (true) {
