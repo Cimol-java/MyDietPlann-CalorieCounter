@@ -23,6 +23,7 @@ public class HistoryMenu {
             int choice = InputValidator.readMenu("Pilih: ", 0, 1);
             if (choice == 1) {
                 LocalDate date = InputValidator.readDate("Masukkan Tanggal");
+                ConsoleUtil.clearScreen();
                 historyService.showHistoryByDate(userId, date);
                 ConsoleUtil.pressEnterToContinue();
             } else {
