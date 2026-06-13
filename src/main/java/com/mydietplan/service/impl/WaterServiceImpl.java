@@ -1,14 +1,16 @@
 package com.mydietplan.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.mydietplan.exception.AppException;
 import com.mydietplan.model.WaterLog;
 import com.mydietplan.repository.WaterRepository;
 import com.mydietplan.service.WaterService;
 import com.mydietplan.util.DateUtil;
 import com.mydietplan.util.IdGenerator;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class WaterServiceImpl implements WaterService {
     private final WaterRepository waterRepository;
@@ -19,6 +21,12 @@ public class WaterServiceImpl implements WaterService {
 
     @Override
     public void addWater(String userId, double amountMl) {
+        if (amountMl <= 0) {
+            throw new AppException("Jumlah air harus lebih besar dari 0 mL.");
+        }
+        if (amountMl > 5000) {
+            throw new AppException("Jumlah air per entri maksimal 5000 mL.");
+        }
         String id = IdGenerator.generate();
         LocalDateTime now = LocalDateTime.now();
         WaterLog log = new WaterLog(id, userId, now, amountMl);
@@ -27,6 +35,12 @@ public class WaterServiceImpl implements WaterService {
 
     @Override
     public boolean editWater(String userId, String logId, double amountMl) {
+        if (amountMl <= 0) {
+            throw new AppException("Jumlah air harus lebih besar dari 0 mL.");
+        }
+        if (amountMl > 5000) {
+            throw new AppException("Jumlah air per entri maksimal 5000 mL.");
+        }
         WaterLog log = waterRepository.findById(userId, logId);
         if (log == null) return false;
         log.setAmountMl(amountMl);

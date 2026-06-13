@@ -1,13 +1,20 @@
 package com.mydietplan.menu;
 
+import java.util.List;
+
+import com.mydietplan.exception.AppException;
 import com.mydietplan.model.FoodLog;
 import com.mydietplan.model.Profile;
 import com.mydietplan.model.User;
 import com.mydietplan.model.WaterLog;
-import com.mydietplan.service.*;
+import com.mydietplan.service.CalculatorService;
+import com.mydietplan.service.FoodCatalogService;
+import com.mydietplan.service.FoodService;
+import com.mydietplan.service.HistoryService;
+import com.mydietplan.service.ProfileService;
+import com.mydietplan.service.WaterService;
 import com.mydietplan.util.ConsoleUtil;
 import com.mydietplan.util.InputValidator;
-import java.util.List;
 
 public class DashboardMenu {
     private final User currentUser;
@@ -34,41 +41,60 @@ public class DashboardMenu {
             ConsoleUtil.clearScreen();
             ConsoleUtil.printHeader("Dashboard - MyDietPlan");
 
-            Profile profile = profileService.getProfile(currentUser.getId());
-            if (profile == null) {
-                System.out.println("[WARN] Profil belum terisi. Mengalihkan ke menu profil...");
+            try {
+                Profile profile = profileService.getProfile(currentUser.getId());
+                if (profile == null) {
+                    System.out.println("[WARN] Profil belum terisi. Mengalihkan ke menu profil...");
+                    ConsoleUtil.pressEnterToContinue();
+                    new ProfileMenu(profileService, calculatorService).showCreateProfile(currentUser.getId());
+                    continue;
+                }
+
+                // Hitung target harian
+                double targetCalories = calculatorService.calculateTDEE(profile);
+                double targetProtein = calculatorService.calculateProtein(profile);
+                double targetWater = calculatorService.calculateWater(profile);
+
+                // Hitung progres harian
+                double currentCalories = 0;
+                double currentProtein = 0;
+                try {
+                    List<FoodLog> todayFoods = foodService.getTodayFoods(currentUser.getId());
+                    for (FoodLog log : todayFoods) {
+                        currentCalories += log.getCalories();
+                        currentProtein += log.getProtein();
+                    }
+                } catch (Exception e) {
+                    System.out.println("[WARN] Gagal memuat data makanan hari ini: " + e.getMessage());
+                }
+
+                double currentWater = 0;
+                try {
+                    List<WaterLog> todayWaters = waterService.getTodayWaters(currentUser.getId());
+                    for (WaterLog log : todayWaters) {
+                        currentWater += log.getAmountMl();
+                    }
+                } catch (Exception e) {
+                    System.out.println("[WARN] Gagal memuat data air hari ini: " + e.getMessage());
+                }
+
+                // Tampilkan ringkasan
+                System.out.println("Selamat Datang, " + profile.getName() + "!");
+                System.out.println("Status Kebutuhan Harian Anda:");
+                System.out.printf("  - Energi  : %.1f / %.1f kkal\n", currentCalories, targetCalories);
+                System.out.printf("  - Protein : %.1f / %.1f g\n", currentProtein, targetProtein);
+                System.out.printf("  - Air     : %.1f / %.1f mL\n", currentWater, targetWater);
+                ConsoleUtil.printSeparator();
+
+            } catch (AppException e) {
+                System.out.println("[ERROR] " + e.getMessage());
                 ConsoleUtil.pressEnterToContinue();
-                new ProfileMenu(profileService, calculatorService).showCreateProfile(currentUser.getId());
+                continue;
+            } catch (Exception e) {
+                System.out.println("[ERROR] Gagal memuat dashboard. Silakan coba lagi.");
+                ConsoleUtil.pressEnterToContinue();
                 continue;
             }
-
-            // Calculate targets
-            double targetCalories = calculatorService.calculateTDEE(profile);
-            double targetProtein = calculatorService.calculateProtein(profile);
-            double targetWater = calculatorService.calculateWater(profile);
-
-            // Calculate daily progress
-            List<FoodLog> todayFoods = foodService.getTodayFoods(currentUser.getId());
-            double currentCalories = 0;
-            double currentProtein = 0;
-            for (FoodLog log : todayFoods) {
-                currentCalories += log.getCalories();
-                currentProtein += log.getProtein();
-            }
-
-            List<WaterLog> todayWaters = waterService.getTodayWaters(currentUser.getId());
-            double currentWater = 0;
-            for (WaterLog log : todayWaters) {
-                currentWater += log.getAmountMl();
-            }
-
-            // Print summary
-            System.out.println("Selamat Datang, " + profile.getName() + "!");
-            System.out.println("Status Kebutuhan Harian Anda:");
-            System.out.printf("  - Energi  : %.1f / %.1f kkal\n", currentCalories, targetCalories);
-            System.out.printf("  - Protein : %.1f / %.1f g\n", currentProtein, targetProtein);
-            System.out.printf("  - Air     : %.1f / %.1f mL\n", currentWater, targetWater);
-            ConsoleUtil.printSeparator();
 
             System.out.println("1. Catat Konsumsi Makanan (Food Log)");
             System.out.println("2. Kelola Menu Makanan (Food Menu)");
