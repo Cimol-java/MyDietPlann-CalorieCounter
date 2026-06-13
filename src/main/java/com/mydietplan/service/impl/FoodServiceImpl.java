@@ -1,14 +1,16 @@
 package com.mydietplan.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.mydietplan.exception.AppException;
 import com.mydietplan.model.FoodLog;
 import com.mydietplan.repository.FoodRepository;
 import com.mydietplan.service.FoodService;
 import com.mydietplan.util.DateUtil;
 import com.mydietplan.util.IdGenerator;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FoodServiceImpl implements FoodService {
     private final FoodRepository foodRepository;
@@ -19,17 +21,35 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public void logFood(String userId, String foodName, double calories, double protein) {
+        if (foodName == null || foodName.trim().isEmpty()) {
+            throw new AppException("Nama makanan tidak boleh kosong.");
+        }
+        if (calories <= 0) {
+            throw new AppException("Kalori harus lebih besar dari 0.");
+        }
+        if (protein < 0) {
+            throw new AppException("Protein tidak boleh bernilai negatif.");
+        }
         String id = IdGenerator.generate();
         LocalDateTime now = LocalDateTime.now();
-        FoodLog log = new FoodLog(id, userId, now, foodName, calories, protein);
+        FoodLog log = new FoodLog(id, userId, now, foodName.trim(), calories, protein);
         foodRepository.save(userId, log);
     }
 
     @Override
     public boolean editFoodLog(String userId, String logId, String foodName, double calories, double protein) {
+        if (foodName == null || foodName.trim().isEmpty()) {
+            throw new AppException("Nama makanan tidak boleh kosong.");
+        }
+        if (calories <= 0) {
+            throw new AppException("Kalori harus lebih besar dari 0.");
+        }
+        if (protein < 0) {
+            throw new AppException("Protein tidak boleh bernilai negatif.");
+        }
         FoodLog log = foodRepository.findById(userId, logId);
         if (log == null) return false;
-        log.setFoodName(foodName);
+        log.setFoodName(foodName.trim());
         log.setCalories(calories);
         log.setProtein(protein);
         foodRepository.update(userId, log);
@@ -56,6 +76,9 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public List<FoodLog> searchFoodLog(String userId, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new AppException("Kata kunci pencarian tidak boleh kosong.");
+        }
         List<FoodLog> allUserLogs = foodRepository.findByUserId(userId);
         List<FoodLog> result = new ArrayList<>();
         for (FoodLog log : allUserLogs) {
