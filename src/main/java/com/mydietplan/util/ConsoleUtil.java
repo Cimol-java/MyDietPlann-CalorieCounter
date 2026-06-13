@@ -7,21 +7,12 @@ public class ConsoleUtil {
 
     public static void clearScreen() {
         try {
-            String os = System.getProperty("os.name").toLowerCase();
-            if (os.contains("win")) {
-                new ProcessBuilder("cmd", "/c", "cls")
+            new ProcessBuilder("cmd", "/c", "cls")
                     .inheritIO()
                     .start()
                     .waitFor();
-            } else {
-                System.out.print("\033[H\033[2J");
-                System.out.flush();
-            }
-        } catch (IOException e) {
-            System.out.println("[WARN] Tidak dapat membersihkan layar: " + e.getMessage());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("[WARN] Proses clear screen terganggu.");
+        } catch (Exception e) {
+            System.out.println();
         }
     }
 
