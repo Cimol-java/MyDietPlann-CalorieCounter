@@ -124,12 +124,14 @@ public class ProfileMenu {
                 return;
             }
 
-            System.out.println("Kosongkan / tekan Enter jika tidak ingin mengubah nilai.");
-            String name = InputValidator.readNonEmpty("Nama lengkap [" + profile.getName() + "]: ");
+            System.out.println("Tekan Enter untuk mempertahankan nilai saat ini.");
+            String name = InputValidator.readOptional(
+                    "Nama lengkap [" + profile.getName() + "]: ", profile.getName());
 
             int age;
             while (true) {
-                age = InputValidator.readInt("Usia (tahun) [" + profile.getAge() + "]: ");
+                age = InputValidator.readIntOptional(
+                        "Usia (tahun) [" + profile.getAge() + "]: ", profile.getAge());
                 if (age > 0 && age <= 120) break;
                 System.out.println("[ERROR] Usia harus antara 1 dan 120.");
             }
@@ -137,11 +139,15 @@ public class ProfileMenu {
             System.out.println("Jenis Kelamin:");
             System.out.println("1. Laki-laki (MALE)");
             System.out.println("2. Perempuan (FEMALE)");
-            int genderChoice = InputValidator.readMenu("Pilih [" + (profile.getGender() == Gender.MALE ? "1" : "2") + "]: ", 1, 2);
+            int defaultGender = (profile.getGender() == Gender.MALE) ? 1 : 2;
+            int genderChoice = InputValidator.readMenuOptional(
+                    "Pilih [" + defaultGender + "]: ", 1, 2, defaultGender);
             Gender gender = (genderChoice == 1) ? Gender.MALE : Gender.FEMALE;
 
-            double weight = InputValidator.readDouble("Berat badan (kg) [" + profile.getWeightKg() + "]: ");
-            double height = InputValidator.readDouble("Tinggi badan (cm) [" + profile.getHeightCm() + "]: ");
+            double weight = InputValidator.readDoubleOptional(
+                    "Berat badan (kg) [" + profile.getWeightKg() + "]: ", profile.getWeightKg());
+            double height = InputValidator.readDoubleOptional(
+                    "Tinggi badan (cm) [" + profile.getHeightCm() + "]: ", profile.getHeightCm());
 
             System.out.println("Tingkat Aktivitas:");
             System.out.println("1. Sangat Ringan (VERY_LIGHT)");
@@ -149,7 +155,9 @@ public class ProfileMenu {
             System.out.println("3. Sedang       (MODERATE)");
             System.out.println("4. Berat        (HEAVY)");
             System.out.println("5. Sangat Berat (VERY_HEAVY)");
-            int actChoice = InputValidator.readMenu("Pilih [" + (profile.getActivityLevel().ordinal() + 1) + "]: ", 1, 5);
+            int defaultAct = profile.getActivityLevel().ordinal() + 1;
+            int actChoice = InputValidator.readMenuOptional(
+                    "Pilih [" + defaultAct + "]: ", 1, 5, defaultAct);
             ActivityLevel activityLevel = ActivityLevel.values()[actChoice - 1];
 
             boolean success = profileService.updateProfile(userId, name, age, gender, weight, height, activityLevel);
