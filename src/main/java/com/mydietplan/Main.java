@@ -1,19 +1,19 @@
 package com.mydietplan;
 
-import com.mydietplan.menu.MainMenu;
+import com.mydietplan.auth.menu.AuthMenu;
 import com.mydietplan.repository.FoodCatalogRepository;
 import com.mydietplan.repository.FoodRepository;
 import com.mydietplan.repository.ProfileRepository;
-import com.mydietplan.repository.UserRepository;
+import com.mydietplan.auth.UserRepository;
+import com.mydietplan.auth.bizz.AuthBizz;
+import com.mydietplan.auth.bizz.IAuthBizz;
 import com.mydietplan.repository.WaterRepository;
-import com.mydietplan.service.AuthService;
 import com.mydietplan.service.CalculatorService;
 import com.mydietplan.service.FoodCatalogService;
 import com.mydietplan.service.FoodService;
 import com.mydietplan.service.HistoryService;
 import com.mydietplan.service.ProfileService;
 import com.mydietplan.service.WaterService;
-import com.mydietplan.service.impl.AuthServiceImpl;
 import com.mydietplan.service.impl.CalculatorServiceImpl;
 import com.mydietplan.service.impl.FoodCatalogServiceImpl;
 import com.mydietplan.service.impl.FoodServiceImpl;
@@ -34,7 +34,7 @@ public class Main {
         WaterRepository waterRepository = new WaterRepository();
 
         // Inisialisasi service (polymorphism: tipe = interface, value = implementasi)
-        AuthService authService = new AuthServiceImpl(userRepository);
+        IAuthBizz authBizz = new AuthBizz(userRepository);
         ProfileService profileService = new ProfileServiceImpl(profileRepository);
         FoodCatalogService foodCatalogService = new FoodCatalogServiceImpl(foodCatalogRepository);
         FoodService foodService = new FoodServiceImpl(foodRepository);
@@ -43,9 +43,9 @@ public class Main {
         HistoryService historyService = new HistoryServiceImpl(foodRepository, waterRepository);
 
         // Mulai menu
-        MainMenu mainMenu = new MainMenu(authService, profileService, foodService,
-                                          foodCatalogService, waterService, calculatorService, historyService);
-        mainMenu.show();
+        AuthMenu authMenu = new AuthMenu(authBizz, profileService, foodService,
+                foodCatalogService, waterService, calculatorService, historyService);
+        authMenu.show();
     }
 
     /**
@@ -60,13 +60,12 @@ public class Main {
         }
         try {
             new ProcessBuilder(
-                "reg", "add",
-                "HKCU\\Console",
-                "/v", "VirtualTerminalLevel",
-                "/t", "REG_DWORD",
-                "/d", "1",
-                "/f"
-            ).inheritIO().start().waitFor();
+                    "reg", "add",
+                    "HKCU\\Console",
+                    "/v", "VirtualTerminalLevel",
+                    "/t", "REG_DWORD",
+                    "/d", "1",
+                    "/f").inheritIO().start().waitFor();
         } catch (Exception ignored) {
             // Lanjut tanpa ANSI Windows support jika gagal
         }

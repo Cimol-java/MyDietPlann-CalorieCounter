@@ -1,6 +1,5 @@
-package com.mydietplan.repository;
+package com.mydietplan.auth;
 
-import com.mydietplan.model.User;
 import java.util.HashMap;
 
 public class UserRepository {

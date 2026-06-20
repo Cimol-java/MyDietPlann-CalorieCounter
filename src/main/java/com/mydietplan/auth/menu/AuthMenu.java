@@ -1,9 +1,9 @@
-package com.mydietplan.menu;
+package com.mydietplan.auth.menu;
 
 import com.mydietplan.exception.AppException;
 import com.mydietplan.model.Profile;
-import com.mydietplan.model.User;
-import com.mydietplan.service.AuthService;
+import com.mydietplan.auth.User;
+import com.mydietplan.auth.bizz.IAuthBizz;
 import com.mydietplan.service.CalculatorService;
 import com.mydietplan.service.FoodCatalogService;
 import com.mydietplan.service.FoodService;
@@ -12,9 +12,11 @@ import com.mydietplan.service.ProfileService;
 import com.mydietplan.service.WaterService;
 import com.mydietplan.util.ConsoleUtil;
 import com.mydietplan.util.InputValidator;
+import com.mydietplan.menu.DashboardMenu;
+import com.mydietplan.menu.ProfileMenu;
 
-public class MainMenu {
-    private final AuthService authService;
+public class AuthMenu {
+    private final IAuthBizz authBizz;
     private final ProfileService profileService;
     private final FoodService foodService;
     private final FoodCatalogService catalogService;
@@ -22,10 +24,10 @@ public class MainMenu {
     private final CalculatorService calculatorService;
     private final HistoryService historyService;
 
-    public MainMenu(AuthService authService, ProfileService profileService, FoodService foodService,
-                    FoodCatalogService catalogService, WaterService waterService, CalculatorService calculatorService,
-                    HistoryService historyService) {
-        this.authService = authService;
+    public AuthMenu(IAuthBizz authBizz, ProfileService profileService, FoodService foodService,
+            FoodCatalogService catalogService, WaterService waterService, CalculatorService calculatorService,
+            HistoryService historyService) {
+        this.authBizz = authBizz;
         this.profileService = profileService;
         this.foodService = foodService;
         this.catalogService = catalogService;
@@ -62,7 +64,7 @@ public class MainMenu {
             String email = InputValidator.readNonEmpty("Email    : ");
             String password = InputValidator.readNonEmpty("Password : ");
 
-            User user = authService.login(email, password);
+            User user = authBizz.login(email, password);
 
             if (user == null) {
                 System.out.println("[ERROR] Email atau password salah.");
@@ -104,7 +106,7 @@ public class MainMenu {
             String email = InputValidator.readNonEmpty("Email    : ");
             String password = InputValidator.readNonEmpty("Password : ");
 
-            boolean success = authService.register(email, password);
+            boolean success = authBizz.register(email, password);
             if (success) {
                 System.out.println("[OK] Register berhasil! Silakan login.");
             } else {

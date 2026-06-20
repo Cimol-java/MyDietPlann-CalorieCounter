@@ -5,7 +5,7 @@ import java.util.List;
 import com.mydietplan.exception.AppException;
 import com.mydietplan.model.FoodLog;
 import com.mydietplan.model.Profile;
-import com.mydietplan.model.User;
+import com.mydietplan.auth.User;
 import com.mydietplan.model.WaterLog;
 import com.mydietplan.service.CalculatorService;
 import com.mydietplan.service.FoodCatalogService;

@@ -1,4 +1,6 @@
-package com.mydietplan.model;
+package com.mydietplan.auth;
+
+import com.mydietplan.model.BaseEntity;
 
 public class User extends BaseEntity {
     private String email;
