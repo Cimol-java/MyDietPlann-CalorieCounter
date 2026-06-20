@@ -40,6 +40,21 @@
                     <mainClass>com.mydietplan.Main</mainClass>
                 </configuration>
             </plugin>
+
+            <!-- JAR Plugin: buat executable JAR dengan manifest Main-Class -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.mydietplan.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <finalName>mydietplan</finalName>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
